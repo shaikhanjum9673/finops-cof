@@ -1,0 +1,25 @@
+{
+    "id": "/subscriptions/662cb94c-0cda-4152-9433-d8f3dc3a4c71/providers/Microsoft.Authorization/roleDefinitions/184bf72b-f102-4a2a-96f1-a5eb9a211243",
+    "properties": {
+        "roleName": "azureinstanceoperatorsep24",
+        "description": "The Instance Operator is a tool for managing Auzre vm  instances, making it easy to control your cloud resources. It allows you to start and stop instances, smoothly switching them between active and inactive states. You can also retrieve detailed information about specific instances and view a list of all your instances at once.",
+        "assignableScopes": [
+            "/subscriptions/662cb94c-0cda-4152-9433-d8f3dc3a4c71"
+        ],
+        "permissions": [
+            {
+                "actions": [
+                    "Microsoft.Compute/virtualMachines/read",
+                    "Microsoft.Compute/virtualMachines/start/action",
+                    "Microsoft.Compute/virtualMachines/restart/action",
+                    "Microsoft.Compute/virtualMachines/deallocate/action",
+                    "Microsoft.Network/publicIPAddresses/read",
+                    "Microsoft.Network/networkInterfaces/read"
+                ],
+                "notActions": [],
+                "dataActions": [],
+                "notDataActions": []
+            }
+        ]
+    }
+}
