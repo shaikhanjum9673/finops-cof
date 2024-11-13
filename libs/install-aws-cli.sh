@@ -32,7 +32,7 @@ else
 
   RETURN_CODE=${?}
 
-  if [[ ${RETURN_CODE} -ne 0 ]]; then
+  if [[ ${RETURN_CODE} -ne 0 ]];then
     echo "ERROR: AWS cli installation failed with unexpected error."
   else
     echo "INFO: AWS cli installation completed successfully."
