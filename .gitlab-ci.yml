@@ -1,0 +1,74 @@
+# Define stage
+stages:
+  - validate
+  - lint
+  - security
+
+# Define global variables
+variables:
+  SHELLCHECK_VERSION: "0.9.0"
+
+default:
+  tags:
+    - azure-sep24
+    - linux
+    - shell
+
+# Define jobs
+largefile:
+  stage: validate
+  script:
+    - echo "Checking for files larger than 500KB..."
+    - find . -type f -size +500k > large_files.txt
+    - |
+      if [ -s large_files.txt ]; then
+        echo "The following files are larger than 500KB:"
+        cat large_files.txt
+        exit 1
+      else
+        echo "No files larger than 500KB found."
+      fi
+  only:
+    - merge_requests
+  needs:
+    - shellformat
+
+shellformat:
+  stage: validate
+  before_script:
+    - wget https://github.com/mvdan/sh/releases/download/v3.10.0/shfmt_v3.10.0_linux_amd64
+    - mv shfmt_v3.10.0_linux_amd64 shfmt
+    - chmod +x shfmt
+  script:
+    - echo "Checking and applying shellformating to scripts."
+    - ./shfmt -i 2 -w .
+  only:
+    - merge_requests
+
+shellcheck:
+  stage: lint
+  before_script:
+    - curl -sSL "https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" | tar -xJ
+  script:
+    - shellcheck-v${SHELLCHECK_VERSION}/shellcheck --version
+    - find . -type f -name "*.sh" -exec shellcheck-v${SHELLCHECK_VERSION}/shellcheck --severity=warning {} +
+  only:
+    - merge_requests
+
+secret-scan:
+  stage: security
+  tags:
+    - gitlab-org
+  before_script:
+    - apt-get update -qy
+    - apt-get install -y python3 python3-pip python3-venv
+  script:
+    - python3 -m venv detectSecret
+    - source detectSecret/bin/activate
+    - pip install detect-secrets
+    - detect-secrets scan > .secrets.baseline
+  only:
+    - merge_requests
+  artifacts:
+    paths:
+      - .secrets.baseline
