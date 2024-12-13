@@ -2,7 +2,7 @@
 
 
 # Define variables
-CREDENTIAL_FILE=".cof/csp_auth.yml"
+CREDENTIAL_FILE=".cof/csp_auth.yaml"
 
 AWS_ACCESS_KEY_ID=$(yq -r '.auth_configs.aws.access_key' $CREDENTIAL_FILE)
 AWS_SECRET_ACCESS_KEY=$(yq -r '.auth_configs.aws.secret_access_key' $CREDENTIAL_FILE)
