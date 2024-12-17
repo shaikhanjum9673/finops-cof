@@ -1,8 +1,7 @@
 #!/bin/bash
 
-
 # Define variables
-CREDENTIAL_FILE=".cof/csp_auth.yml"
+CREDENTIAL_FILE="$1"
 
 AWS_ACCESS_KEY_ID=$(yq -r '.auth_configs.aws.access_key' $CREDENTIAL_FILE)
 AWS_SECRET_ACCESS_KEY=$(yq -r '.auth_configs.aws.secret_access_key' $CREDENTIAL_FILE)
@@ -19,19 +18,32 @@ SUBSCRIPTION_ID=$(yq -r '.auth_configs.azure.subscription_id' $CREDENTIAL_FILE)
 aws configure set aws_access_key_id ${AWS_ACCESS_KEY_ID}
 aws configure set aws_secret_access_key ${AWS_SECRET_ACCESS_KEY}
 aws configure set region ${AWS_REGION}
-aws configure set output${AWS_OUTPUT}
+aws configure set output ${AWS_OUTPUT}
 
 # Validate login
-aws sts get-caller-identity
+if aws sts get-caller-identity >/dev/null 2>&1; then
 
+  iam_username=$(aws sts get-caller-identity --query 'Arn' --output text)
+  echo "INFO: Successfully logged in with AWS IAM User $iam_username"
+else
+  echo "ERROR: Unexpected error occured while authenticating with IAM User"
+  exit 1
+fi
 
 # Azure login
 az login --service-principal \
   -u ${AZURE_CLIENT_ID} \
   -p  ${AZURE_CLIENT_SECRET} \
   --tenant ${AZURE_TENANT_ID} \
-  --allow-no-subscriptions
+  --allow-no-subscriptions > /dev/null
 
 # Validate login
-az account show
-az ad sp show --id ${AZURE_CLIENT_ID}
+if az account show >/dev/null 2>&1; then
+
+  az_spid="$(az account show --query 'user.name' -o tsv)"
+  az_spname=$(az ad sp show --id $az_spid --query appDisplayName -o tsv)
+  echo "INFO: Successfully logged in with Azure Service Principle $az_spname/$az_spid"
+else
+  echo "ERROR: Unexpected error occured while authenticating with Service Principle"
+  exit 1
+fi
