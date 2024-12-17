@@ -1,5 +1,4 @@
-#! /bin/bash
-
+#!/bin/bash
 
 if command -v shellcheck > /dev/null; then
   SHELL_CHECK_BINARY=$(command -v shellcheck)
