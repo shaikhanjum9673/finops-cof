@@ -1,12 +1,16 @@
-# cost optimization framework
+# Cost Optimization Framework
 
-## overview
+## Overview
 Schedule non-production instances to shutdown during non-working hours, Cost Optimization Framework (COF) will allow you to schedule the instance shutdown and startup time. COF also provide ability to re-size instances based on their current utilization pattern.
+
 
 ## Pre-requiste
 
 ### 1. Instance tagging
-Information to be updated
+Add tag to all the instances which will be shutdown/start using cost optimization framework.
+```
+shutdown: true
+```
 
 ### 2. Authentication configuration
 
@@ -26,3 +30,66 @@ auth_configs:
     client_id: "xxxxxxxxxxxxxxxxxxxxxx"
     client_secret: "xxxxxxxxxxxxxxxxxxxxxx"
 ```
+> NOTE: You should have AWS and Azure account with appropriate permissions.
+
+### 3. Configure mail server
+
+Ensure mail server is configured on runner instance to send email. Follow instruction documented in [configure-gmail-stmp.md](./docs/configure-gmail-stmp.md) for configuring gmail stmp.
+
+<br>
+
+## Usage
+
+### Local execution
+
+Execute init script to either start/stop VMs.
+
+```
+init.sh --action stop
+
+init.sh --action start
+
+```
+
+### Schedule using Linux cron
+Open a crontab file and configure start/stop schedule
+
+```
+# list cron entries
+crontab -l
+
+# edit cron entries
+crontab -e
+```
+
+Instance Shutdown job everyday at 9 PM Mon to Friday.
+```
+0 8 * * 1-5 cd /opt/cof/latest && init.sh --action start
+```
+
+Instance Start job everyday
+```
+0 21 * * 1-5 cd /opt/cof/latest && init.sh --action stop
+```
+
+<br>
+
+## Supported Cloud Vendors & Services Matrix
+| CSP | Resource | Scheduled based | Event based | Resizing | Remark |
+| --- | -------- | --------------- | ----------- | -------- | ------ |
+| AWS | EC2      | Yes             | No          | No       | N/A    |
+| AWS | ASG      | No              | No          | No       | N/A    |
+| AWS | RDS        | No            | No          | No       | N/A    |
+| Azure | VM       | Yes           | No          | No       | N/A    |
+| Azure | VMSS     | No            | No          | No       | N/A    |
+| Azure | AzureSQL | No            | No          | No       | N/A    |
+
+
+
+## Contributor
+
+
+## Future support
+
+
+## License

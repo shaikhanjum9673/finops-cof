@@ -17,13 +17,15 @@ default:
 # Define jobs
 largefile:
   stage: validate
+  variables:
+    LARGE_FILE_TXT: large_files.txt
   script:
     - echo "Checking for files larger than 500KB..."
-    - find . -type f -size +500k > large_files.txt
+    - find . -type f -size +500k > $LARGE_FILE_TXT
     - |
-      if [ -s large_files.txt ]; then
+      if [ -s $LARGE_FILE_TXT ]; then
         echo "The following files are larger than 500KB:"
-        cat large_files.txt
+        cat $LARGE_FILE_TXT
         exit 1
       else
         echo "No files larger than 500KB found."
@@ -72,3 +74,4 @@ secret-scan:
   artifacts:
     paths:
       - .secrets.baseline
+  retry: 2
